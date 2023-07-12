@@ -1,5 +1,7 @@
 # TMP116 Digital Temperature Sensor
 
+[![CTest](https://github.com/LawrenceStanton/TMP116/actions/workflows/ctest.yml/badge.svg)](https://github.com/LawrenceStanton/TMP116/actions/workflows/ctest.yml)
+
 ## Overview
 
 The TMP116 is an embedded temperature sensor, produced by Texas Instruments, and operates over a SMBus digital communications interface. This driver provides a simple C++ object-orientated driver to allow for control and data reception from this device, and is agnostic to any embedded platform.
