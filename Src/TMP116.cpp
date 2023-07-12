@@ -27,18 +27,31 @@ using Register		= TMP116::I2C::Register;
 
 TMP116::TMP116(I2C *i2c, I2C::DeviceAddress deviceAddress) : i2c(i2c), deviceAddress(deviceAddress) {}
 
-float TMP116::convertTemperatureRegister(Register registerValue) {
+/**
+ * @brief Convert a TMP116 Register temperature value to a float.
+ *
+ * @param registerValue The TMP116 register value.
+ * @return float The equivalent temperature in degrees Celsius.
+ */
+static constexpr float convertTemperatureRegister(Register registerValue) {
 	return static_cast<float>(static_cast<int16_t>(registerValue)) * TMP116_LSB_TEMPERATURE_RESOLUTION;
 }
 
-Register TMP116::convertTemperatureRegister(float temperature) {
-	return static_cast<Register>(temperature / TMP116_LSB_TEMPERATURE_RESOLUTION);
+/**
+ * @brief Convert a float temperature in degrees Celsius to a TMP116 Register value.
+ *
+ * @param temperature The temperature in degrees Celsius.
+ * @return Register The TMP116 register equivalent value.
+ */
+static constexpr Register convertTemperatureRegister(float temperature) {
+	Register result = static_cast<Register>(static_cast<int16_t>(temperature / TMP116_LSB_TEMPERATURE_RESOLUTION));
+	return result;
 }
 
 float TMP116::getTemperature() const {
 	auto registerValue = this->i2c->read(this->deviceAddress, TMP116_TEMP_REG_ADDR);
 	if (registerValue) {
-		return TMP116::convertTemperatureRegister(registerValue.value());
+		return convertTemperatureRegister(registerValue.value());
 	} else return -256.0f;
 }
 
@@ -47,11 +60,11 @@ std::optional<Register> TMP116::getDeviceId() {
 }
 
 std::optional<Register> TMP116::setHighLimit(float temperature) const {
-	Register registerValue = TMP116::convertTemperatureRegister(temperature);
+	Register registerValue = convertTemperatureRegister(temperature);
 	return this->i2c->write(this->deviceAddress, TMP116_HIGH_LIM_REG_ADDR, registerValue);
 }
 
 std::optional<Register> TMP116::setLowLimit(float temperature) const {
-	Register registerValue = TMP116::convertTemperatureRegister(temperature);
+	Register registerValue = convertTemperatureRegister(temperature);
 	return this->i2c->write(this->deviceAddress, TMP116_LOW_LIM_REG_ADDR, registerValue);
 }

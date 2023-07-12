@@ -81,22 +81,6 @@ public:
 	float getTemperature() const;
 
 	/**
-	 * @brief Convert a TMP116 Register temperature value to a float.
-	 *
-	 * @param registerValue The TMP116 register value.
-	 * @return float The equivalent temperature in degrees Celsius.
-	 */
-	static float convertTemperatureRegister(Register registerValue);
-
-	/**
-	 * @brief Convert a float temperature in degrees Celsius to a TMP116 Register value.
-	 *
-	 * @param temperature The temperature in degrees Celsius.
-	 * @return Register The TMP116 register equivalent value.
-	 */
-	static Register convertTemperatureRegister(float temperature);
-
-	/**
 	 * @brief Get the Device ID of the TMP116.
 	 *
 	 * @return std::optional<Register> The Device ID if successful.

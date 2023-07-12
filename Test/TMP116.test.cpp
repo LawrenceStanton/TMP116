@@ -11,7 +11,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "TMP116.hpp"
+#include "../Src/TMP116.cpp"
 
 using ::testing::_;
 using ::testing::Eq;
@@ -24,23 +24,24 @@ using Register		= TMP116::I2C::Register;
 
 // Tests of Static Functions
 TEST(TMP116_TestStatic, convertTemperatureRegisterReturnsCorrectValuesRegisterToFloat) {
-	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x0000u)), 0.0f);
-	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x0001u)), 0.0078125f);
-	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x8000u)), -256.0f);
-	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x8001u)), -255.9921875f);
-	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0xFFFFu)), -0.0078125f);
-	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x7FFFu)), 255.9921875f);
-	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x7FFEu)), 255.984375f);
+	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0x0000u)), 0.0f);
+	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0x0001u)), 0.0078125f);
+	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0x8000u)), -256.0f);
+	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0x8001u)), -255.9921875f);
+	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0xFFFFu)), -0.0078125f);
+	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0x7FFFu)), 255.9921875f);
+	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0x7FFEu)), 255.984375f);
 }
 
 TEST(TMP116_TestStatic, convertTemperatureRegisterReturnsCurrentValuesFloatToRegister) {
-	EXPECT_EQ(TMP116::convertTemperatureRegister(0.0f), static_cast<Register>(0x0000u));
-	EXPECT_EQ(TMP116::convertTemperatureRegister(0.0078125f), static_cast<Register>(0x0001u));
-	EXPECT_EQ(TMP116::convertTemperatureRegister(-0.0078125f), static_cast<Register>(0xFFFFu));
-	EXPECT_EQ(TMP116::convertTemperatureRegister(-256.0f), static_cast<Register>(0x8000u));
-	EXPECT_EQ(TMP116::convertTemperatureRegister(-255.9921875f), static_cast<Register>(0x8001u));
-	EXPECT_EQ(TMP116::convertTemperatureRegister(255.9921875f), static_cast<Register>(0x7FFFu));
-	EXPECT_EQ(TMP116::convertTemperatureRegister(255.984375f), static_cast<Register>(0x7FFEu));
+	EXPECT_EQ(convertTemperatureRegister(0.0f), static_cast<Register>(0x0000u));
+	EXPECT_EQ(convertTemperatureRegister(0.0078125f), static_cast<Register>(0x0001u));
+	EXPECT_EQ(convertTemperatureRegister(-0.0078125f), static_cast<Register>(0xFFFFu));
+	EXPECT_EQ(convertTemperatureRegister(-0.015625f), static_cast<Register>(0xFFFEu));
+	EXPECT_EQ(convertTemperatureRegister(-256.0f), static_cast<Register>(0x8000u));
+	EXPECT_EQ(convertTemperatureRegister(-255.9921875f), static_cast<Register>(0x8001u));
+	EXPECT_EQ(convertTemperatureRegister(255.9921875f), static_cast<Register>(0x7FFFu));
+	EXPECT_EQ(convertTemperatureRegister(255.984375f), static_cast<Register>(0x7FFEu));
 }
 
 class MockedI2C : public TMP116::I2C {
