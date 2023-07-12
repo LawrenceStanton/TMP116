@@ -81,12 +81,28 @@ public:
 	float getTemperature() const;
 
 	/**
-	 * @brief Get the Temperature, given the TMP116 register value.
+	 * @brief Convert a TMP116 Register temperature value to a float.
 	 *
 	 * @param registerValue The TMP116 register value.
-	 * @return float The temperature in degrees Celsius.
+	 * @return float The equivalent temperature in degrees Celsius.
 	 */
-	static float getTemperature(Register registerValue);
+	static float convertTemperatureRegister(Register registerValue);
+
+	/**
+	 * @brief Convert a float temperature in degrees Celsius to a TMP116 Register value.
+	 *
+	 * @param temperature The temperature in degrees Celsius.
+	 * @return Register The TMP116 register equivalent value.
+	 */
+	static Register convertTemperatureRegister(float temperature);
+
+	/**
+	 * @brief Get the Device ID of the TMP116.
+	 *
+	 * @return std::optional<Register> The Device ID if successful.
+	 * @note The Device ID should always be 0x1116u.
+	 */
+	std::optional<Register> getDeviceId();
 
 	/**
 	 * @brief Set the High Limit threshold for the TMP116.
@@ -103,14 +119,6 @@ public:
 	 * @return std::optional<Register> The register value written to the TMP116 low limit register if successful.
 	 */
 	std::optional<Register> setLowLimit(float temperature) const;
-
-	/**
-	 * @brief Get the Device ID of the TMP116.
-	 *
-	 * @return std::optional<Register> The Device ID if successful.
-	 * @note The Device ID should always be 0x1116u.
-	 */
-	std::optional<Register> getDeviceId();
 
 	inline DeviceAddress getDeviceAddress() const { return deviceAddress; }
 	inline void			 setDeviceAddress(DeviceAddress deviceAddress) { this->deviceAddress = deviceAddress; }

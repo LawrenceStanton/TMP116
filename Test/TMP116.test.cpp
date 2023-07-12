@@ -23,15 +23,26 @@ using MemoryAddress = TMP116::I2C::MemoryAddress;
 using Register		= TMP116::I2C::Register;
 
 // Tests of Static Functions
-TEST(TMP116_TestStatic, getTemperatureReturnsCorrectValue) {
-	EXPECT_FLOAT_EQ(TMP116::getTemperature(0x0000u), 0.0f);
-	EXPECT_FLOAT_EQ(TMP116::getTemperature(0x0001u), 0.0078125f);
-	EXPECT_FLOAT_EQ(TMP116::getTemperature(0x8000u), -256.0f);
-	EXPECT_FLOAT_EQ(TMP116::getTemperature(0x8001u), -255.9921875f);
-	EXPECT_FLOAT_EQ(TMP116::getTemperature(0xFFFFu), -0.0078125f);
-	EXPECT_FLOAT_EQ(TMP116::getTemperature(0x7FFFu), 255.9921875f);
-	EXPECT_FLOAT_EQ(TMP116::getTemperature(0x7FFEu), 255.984375f);
+TEST(TMP116_TestStatic, convertTemperatureRegisterReturnsCorrectValuesRegisterToFloat) {
+	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x0000u)), 0.0f);
+	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x0001u)), 0.0078125f);
+	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x8000u)), -256.0f);
+	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x8001u)), -255.9921875f);
+	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0xFFFFu)), -0.0078125f);
+	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x7FFFu)), 255.9921875f);
+	EXPECT_FLOAT_EQ(TMP116::convertTemperatureRegister(static_cast<Register>(0x7FFEu)), 255.984375f);
 }
+
+TEST(TMP116_TestStatic, convertTemperatureRegisterReturnsCurrentValuesFloatToRegister) {
+	EXPECT_EQ(TMP116::convertTemperatureRegister(0.0f), static_cast<Register>(0x0000u));
+	EXPECT_EQ(TMP116::convertTemperatureRegister(0.0078125f), static_cast<Register>(0x0001u));
+	EXPECT_EQ(TMP116::convertTemperatureRegister(-0.0078125f), static_cast<Register>(0xFFFFu));
+	EXPECT_EQ(TMP116::convertTemperatureRegister(-256.0f), static_cast<Register>(0x8000u));
+	EXPECT_EQ(TMP116::convertTemperatureRegister(-255.9921875f), static_cast<Register>(0x8001u));
+	EXPECT_EQ(TMP116::convertTemperatureRegister(255.9921875f), static_cast<Register>(0x7FFFu));
+	EXPECT_EQ(TMP116::convertTemperatureRegister(255.984375f), static_cast<Register>(0x7FFEu));
+}
+
 class MockedI2C : public TMP116::I2C {
 public:
 	MOCK_METHOD(
@@ -50,8 +61,9 @@ public:
 
 class TMP116_Test : public ::testing::Test {
 public:
-	MockedI2C mockedI2C;
-	TMP116	  tmp116{&mockedI2C, TMP116::DeviceAddress::ADD0_GND};
+	MockedI2C			  mockedI2C;
+	TMP116::DeviceAddress deviceAddress = TMP116::DeviceAddress::ADD0_GND;
+	TMP116				  tmp116{&mockedI2C, deviceAddress};
 
 	inline void disableI2C(void) {
 		ON_CALL(mockedI2C, read).WillByDefault(Return(std::nullopt));
@@ -88,4 +100,36 @@ TEST_F(TMP116_Test, getDeviceIdNormallyReturnsValue) {
 TEST_F(TMP116_Test, getDeviceIdReturnsNulloptWhenI2CReadFails) {
 	this->disableI2C();
 	EXPECT_EQ(this->tmp116.getDeviceId(), std::nullopt);
+}
+
+TEST_F(TMP116_Test, setHighLimitNormallyReturnsRegisterValue) {
+	const MemoryAddress highLimitAddress			  = 0x02u;
+	float				setHighLimitValue			  = -10.0f;
+	const Register		highLimitExpectedWrittenValue = 0xFB00u;
+
+	EXPECT_CALL(mockedI2C, write(Eq(this->deviceAddress), Eq(highLimitAddress), _)).WillOnce(ReturnArg<2>());
+
+	const auto highLimitResult = this->tmp116.setHighLimit(setHighLimitValue);
+	EXPECT_EQ(highLimitResult.value(), highLimitExpectedWrittenValue);
+}
+
+TEST_F(TMP116_Test, setHighLimitReturnsNulloptWhenI2CWriteFails) {
+	this->disableI2C();
+	EXPECT_EQ(this->tmp116.setHighLimit(0.0f), std::nullopt);
+}
+
+TEST_F(TMP116_Test, setLowLimitNormallyReturnsRegisterValue) {
+	const MemoryAddress lowLimitAddress				 = 0x03u;
+	float				setLowLimitValue			 = -10.0f;
+	const Register		lowLimitExpectedWrittenValue = 0xFB00u;
+
+	EXPECT_CALL(mockedI2C, write(Eq(this->deviceAddress), Eq(lowLimitAddress), _)).WillOnce(ReturnArg<2>());
+
+	const auto lowLimitResult = this->tmp116.setLowLimit(setLowLimitValue);
+	EXPECT_EQ(lowLimitResult.value(), lowLimitExpectedWrittenValue);
+}
+
+TEST_F(TMP116_Test, setLowLimitReturnsNulloptWhenI2CWriteFails) {
+	this->disableI2C();
+	EXPECT_EQ(this->tmp116.setLowLimit(0.0f), std::nullopt);
 }
