@@ -74,6 +74,14 @@ std::optional<Config> TMP116::getConfig() {
 	} else return std::nullopt;
 }
 
+std::optional<bool> TMP116::dataReady() {
+	const auto transmission = this->getConfig();
+
+	if (!transmission) return std::nullopt;
+
+	return transmission.value().dataReadyFlag;
+}
+
 std::optional<Register> TMP116::setConfig(Config config) {
 	const Register registerValue = Register(config);
 	return this->i2c->write(this->deviceAddress, TMP116_CFGR_REG_ADDR, registerValue);

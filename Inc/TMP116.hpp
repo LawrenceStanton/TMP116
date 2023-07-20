@@ -180,6 +180,14 @@ public:
 	std::optional<Config> getConfig();
 
 	/**
+	 * @brief Determine if Data is Ready to be read from the TMP116.
+	 *
+	 * @return std::optional<bool> True if data is ready, false if not ready, std::nullopt if unsuccessful.
+	 * @note The TMP116 Data Ready Flag is cleared when either the config temperature register is read.
+	 */
+	std::optional<bool> dataReady();
+
+	/**
 	 * @brief Set the configuration of the TMP116.
 	 *
 	 * @param config The total configuration of the TMP116.

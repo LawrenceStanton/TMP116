@@ -139,6 +139,17 @@ TEST_F(TMP116_Test, getConfigReturnsNulloptWhenI2CReadFails) {
 	EXPECT_EQ(this->tmp116.getConfig(), std::nullopt);
 }
 
+TEST_F(TMP116_Test, dataReadyNormallyReturnsValue) {
+	EXPECT_CALL(mockedI2C, read).WillOnce(Return(0x0220u)).WillOnce(Return(0x2220u));
+	EXPECT_FALSE(this->tmp116.dataReady().value());
+	EXPECT_TRUE(this->tmp116.dataReady().value());
+}
+
+TEST_F(TMP116_Test, dataReadyReturnsFalseWhenI2CReadFails) {
+	this->disableI2C();
+	EXPECT_EQ(this->tmp116.dataReady(), std::nullopt);
+}
+
 TEST_F(TMP116_Test, setConfigNormallyReturnsRegisterValue) {
 	const MemoryAddress configAddress				= 0x01u;
 	const Register		configDefaultValue			= 0x0220u;
