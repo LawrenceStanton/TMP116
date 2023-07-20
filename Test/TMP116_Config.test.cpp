@@ -83,19 +83,20 @@ TEST(TMP116_TestConfig, constructorDefaultConstructsToDeviceFactoryDefaultConfig
 }
 
 TEST(TMP116_TestConfig, configImplicitTypeCastsToRegister) {
+	// ! Read-Only Flags in MSB are always set to 0.
 	Config	 config{Register{0x0000u}};
 	Register registerValue = config;
 	EXPECT_EQ(registerValue, Register{0x0000u});
 
 	config		  = Config{Register{0xFFFFu}};
 	registerValue = config;
-	EXPECT_EQ(registerValue, Register{0xFFFCu}); // 2 LSBs are read-only, so they are masked out.
+	EXPECT_EQ(registerValue, Register{0x0FFCu}); // 2 LSBs are read-only, so they are masked out.
 
-	config		  = Config{Register{0xAAAAu}};
+	config		  = Config{Register{0xAAAu}};
 	registerValue = config;
-	EXPECT_EQ(registerValue, Register{0xA2A8u}); // CC Alternative (0x0800) Mapped to 0x0000
+	EXPECT_EQ(registerValue, Register{0x02A8u}); // CC Alternative (0x0800) Mapped to 0x0000
 
 	config		  = Config{Register{0x5555u}};
 	registerValue = config;
-	EXPECT_EQ(registerValue, Register{0x5554u});
+	EXPECT_EQ(registerValue, Register{0x0554u});
 }
