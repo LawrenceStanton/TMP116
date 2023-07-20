@@ -143,7 +143,7 @@ public:
 		 * @brief Construct a default Config object.
 		 * @note The default is the TMP116 default configuration, not the defaults for the Config object variables.
 		 */
-		explicit Config(void) = default;
+		explicit constexpr Config(void) = default;
 
 		/**
 		 * @brief Convert a Config object to a TMP116 Config Register value.
