@@ -121,16 +121,16 @@ public:
 			ALERT	   = 0x0000u, // ALERT Pin reflects status of Alert Flags
 		};
 
-		bool					  highAlertFlag;
-		bool					  lowAlertFlag;
-		bool					  dataReadyFlag;
-		bool					  eepromBusyFlag;
-		TemperatureConversionMode temperatureConversionMode;
-		ConversionCycleTime		  conversionCycleTime;
-		Averages				  averages;
-		ThermalAlertModeSelect	  thermalAlertMode;
-		AlertPolarity			  alertPolarity;
-		DataReadyAlertPinSelect	  dataReadyAlertSelection;
+		bool					  highAlertFlag				= false;
+		bool					  lowAlertFlag				= false;
+		bool					  dataReadyFlag				= false;
+		bool					  eepromBusyFlag			= false;
+		TemperatureConversionMode temperatureConversionMode = TemperatureConversionMode::CONTINUOUS;
+		ConversionCycleTime		  conversionCycleTime		= ConversionCycleTime::CONV_1000MS;
+		Averages				  averages					= Averages::AVG_8;
+		ThermalAlertModeSelect	  thermalAlertMode			= ThermalAlertModeSelect::ALERT;
+		AlertPolarity			  alertPolarity				= AlertPolarity::ACTIVE_LOW;
+		DataReadyAlertPinSelect	  dataReadyAlertSelection	= DataReadyAlertPinSelect::ALERT;
 
 		/**
 		 * @brief Construct a new Config object from a TMP116 Config Register value.
@@ -138,6 +138,12 @@ public:
 		 * @param configRegister The TMP116 Config Register value.
 		 */
 		explicit Config(Register configRegister);
+
+		/**
+		 * @brief Construct a default Config object.
+		 * @note The default is the TMP116 default configuration, not the defaults for the Config object variables.
+		 */
+		explicit Config(void) = default;
 
 		/**
 		 * @brief Convert a Config object to a TMP116 Config Register value.
@@ -149,6 +155,28 @@ public:
 		 */
 		operator Register() const;
 	};
+
+	/**
+	 * @brief Get the TMP116 Config Register value.
+	 *
+	 * @return std::optional<Register> The config register value of the TMP116 if successful.
+	 */
+	std::optional<Register> getConfigRegister();
+
+	/**
+	 * @brief Get the Config object representation of TMP116 Configuration.
+	 *
+	 * @return std::optional<Config> The Config object if successful.
+	 */
+	std::optional<Config> getConfig();
+
+	/**
+	 * @brief Set the configuration of the TMP116.
+	 *
+	 * @param config The total configuration of the TMP116.
+	 * @return std::optional<Register> The register value written to the TMP116 config register if successful.
+	 */
+	std::optional<Register> setConfig(Config config);
 
 	/**
 	 * @brief Set the High Limit threshold for the TMP116.

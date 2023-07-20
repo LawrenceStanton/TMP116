@@ -106,6 +106,57 @@ TEST_F(TMP116_Test, getDeviceIdReturnsNulloptWhenI2CReadFails) {
 	EXPECT_EQ(this->tmp116.getDeviceId(), std::nullopt);
 }
 
+TEST_F(TMP116_Test, getConfigRegisterNormallyReturnsValue) {
+	const MemoryAddress configAddress			  = 0x01u;
+	const Register		configDefaultValue		  = 0x0220u;
+	const Register		configExpectedReturnValue = 0x0220u;
+	EXPECT_CALL(mockedI2C, read(Eq(this->tmp116.getDeviceAddress()), Eq(configAddress)))
+		.WillOnce(Return(configDefaultValue));
+
+	const auto config = this->tmp116.getConfigRegister();
+	EXPECT_EQ(config.value(), configExpectedReturnValue);
+}
+
+TEST_F(TMP116_Test, getConfigRegisterReturnsNulloptWhenI2CReadFails) {
+	this->disableI2C();
+	EXPECT_EQ(this->tmp116.getConfigRegister(), std::nullopt);
+}
+
+TEST_F(TMP116_Test, getConfigNormallyReturnsValue) {
+	const MemoryAddress configAddress	   = 0x01u;
+	const Register		configDefaultValue = 0x0220u;
+
+	EXPECT_CALL(mockedI2C, read(Eq(this->tmp116.getDeviceAddress()), Eq(configAddress)))
+		.WillOnce(Return(configDefaultValue));
+
+	const auto config = this->tmp116.getConfig();
+	EXPECT_TRUE(config.has_value());
+	EXPECT_EQ(config, Config{configDefaultValue});
+}
+
+TEST_F(TMP116_Test, getConfigReturnsNulloptWhenI2CReadFails) {
+	this->disableI2C();
+	EXPECT_EQ(this->tmp116.getConfig(), std::nullopt);
+}
+
+TEST_F(TMP116_Test, setConfigNormallyReturnsRegisterValue) {
+	const MemoryAddress configAddress				= 0x01u;
+	const Register		configDefaultValue			= 0x0220u;
+	const Register		configExpectedWrittenValue	= 0x0220u;
+	const Config		configExpectedWrittenConfig = Config{configExpectedWrittenValue};
+
+	EXPECT_CALL(mockedI2C, write(Eq(this->deviceAddress), Eq(configAddress), Eq(configExpectedWrittenValue)))
+		.WillOnce(ReturnArg<2>());
+
+	const auto configResult = this->tmp116.setConfig(configExpectedWrittenConfig);
+	EXPECT_EQ(configResult.value(), configExpectedWrittenValue);
+}
+
+TEST_F(TMP116_Test, setConfigReturnsNulloptWhenI2CWriteFails) {
+	this->disableI2C();
+	EXPECT_EQ(this->tmp116.setConfig(Config{}), std::nullopt);
+}
+
 TEST_F(TMP116_Test, setHighLimitNormallyReturnsRegisterValue) {
 	const MemoryAddress highLimitAddress			  = 0x02u;
 	float				setHighLimitValue			  = -10.0f;

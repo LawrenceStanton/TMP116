@@ -11,6 +11,7 @@
 using DeviceAddress = TMP116::I2C::DeviceAddress;
 using MemoryAddress = TMP116::I2C::MemoryAddress;
 using Register		= TMP116::I2C::Register;
+using Config		= TMP116::Config;
 
 #define TMP116_TEMP_REG_ADDR	  static_cast<MemoryAddress>(0x00u) // Temperature Register Address
 #define TMP116_CFGR_REG_ADDR	  static_cast<MemoryAddress>(0x01u) // Configuration Register Address
@@ -49,14 +50,33 @@ static constexpr Register convertTemperatureRegister(float temperature) {
 }
 
 float TMP116::getTemperature() const {
-	auto registerValue = this->i2c->read(this->deviceAddress, TMP116_TEMP_REG_ADDR);
-	if (registerValue) {
-		return convertTemperatureRegister(registerValue.value());
+	auto transmission = this->i2c->read(this->deviceAddress, TMP116_TEMP_REG_ADDR);
+	if (transmission) {
+		return convertTemperatureRegister(transmission.value());
 	} else return -256.0f;
 }
 
 std::optional<Register> TMP116::getDeviceId() {
 	return this->i2c->read(this->deviceAddress, TMP116_DEVICE_ID_REG_ADDR);
+}
+
+std::optional<Register> TMP116::getConfigRegister() {
+	auto transmission = this->i2c->read(this->deviceAddress, TMP116_CFGR_REG_ADDR);
+	if (transmission) {
+		return transmission.value();
+	} else return std::nullopt;
+}
+
+std::optional<Config> TMP116::getConfig() {
+	auto configTransmission = this->getConfigRegister();
+	if (configTransmission) {
+		return Config{configTransmission.value()};
+	} else return std::nullopt;
+}
+
+std::optional<Register> TMP116::setConfig(Config config) {
+	const Register registerValue = Register(config);
+	return this->i2c->write(this->deviceAddress, TMP116_CFGR_REG_ADDR, registerValue);
 }
 
 std::optional<Register> TMP116::setHighLimit(float temperature) const {

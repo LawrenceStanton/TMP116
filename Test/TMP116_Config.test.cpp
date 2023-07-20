@@ -71,11 +71,15 @@ TEST(TMP116_TestConfig, constructorDecodesRegisterSampleTestCases) {
 	EXPECT_EQ(config.dataReadyAlertSelection, Config::DataReadyAlertPinSelect::DATA_READY);
 }
 
-TEST(TMP116_TestConfig, constructorMappsAlternativeCotinousConversionMode) {
+TEST(TMP116_TestConfig, constructorMapsAlternativeContinuosConversionMode) {
 	Config config{Register{0x0800u}};
 	EXPECT_EQ(config.temperatureConversionMode, Config::TemperatureConversionMode::CONTINUOUS);
 	config = Config{Register{0x0000u}};
 	EXPECT_EQ(config.temperatureConversionMode, Config::TemperatureConversionMode::CONTINUOUS);
+}
+
+TEST(TMP116_TestConfig, constructorDefaultConstructsToDeviceFactoryDefaultConfig) {
+	EXPECT_EQ(Config{}, Config{Register{0x0220u}});
 }
 
 TEST(TMP116_TestConfig, configImplicitTypeCastsToRegister) {
