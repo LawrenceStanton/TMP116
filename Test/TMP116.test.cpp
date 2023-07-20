@@ -157,6 +157,75 @@ TEST_F(TMP116_Test, setConfigReturnsNulloptWhenI2CWriteFails) {
 	EXPECT_EQ(this->tmp116.setConfig(Config{}), std::nullopt);
 }
 
+TEST_F(TMP116_Test, setConfigNormallyDirectlyWritesWhenGivenCompleteNewConfiguration) {
+	const MemoryAddress configAddress			   = 0x01u;
+	const Register		configDefaultValue		   = 0x0220u;
+	const Register		configExpectedWrittenValue = 0x0FFCu;
+
+	EXPECT_CALL(mockedI2C, read).Times(0);
+	EXPECT_CALL(mockedI2C, write(Eq(this->deviceAddress), Eq(configAddress), _)).WillOnce(ReturnArg<2>());
+
+	const auto configResult = this->tmp116.setConfig(
+		Config::TemperatureConversionMode::ONESHOT,
+		Config::ConversionCycleTime::CONV_16000MS,
+		Config::Averages::AVG_64,
+		Config::ThermalAlertModeSelect::THERM,
+		Config::AlertPolarity::ACTIVE_HIGH,
+		Config::DataReadyAlertPinSelect::DATA_READY
+	);
+
+	EXPECT_EQ(configResult.value(), configExpectedWrittenValue);
+}
+
+TEST_F(TMP116_Test, setConfigReturnsNulloptIfGivenNoParameters) {
+	EXPECT_EQ(this->tmp116.setConfig(), std::nullopt);
+}
+
+TEST_F(TMP116_Test, setConfigSetsOnlyGivenParametersAndOtherwiseMaintainsState) {
+	const MemoryAddress configAddress			   = 0x01u;
+	const Register		configDefaultValue		   = 0x0220u;
+	const Register		configExpectedWrittenValue = 0x023Cu;
+
+	EXPECT_CALL(mockedI2C, read).WillOnce(Return(configDefaultValue));
+	EXPECT_CALL(mockedI2C, write(Eq(this->deviceAddress), Eq(configAddress), _)).WillOnce(ReturnArg<2>());
+
+	const auto configResult = this->tmp116.setConfig(
+		{},
+		{},
+		{},
+		Config::ThermalAlertModeSelect::THERM,
+		Config::AlertPolarity::ACTIVE_HIGH,
+		Config::DataReadyAlertPinSelect::DATA_READY
+	);
+
+	EXPECT_EQ(configResult.value(), configExpectedWrittenValue);
+}
+
+TEST_F(TMP116_Test, setConfigWillNotWriteIfConfigIsUnchangedAndWillReturnCurrentConfig) {
+	const MemoryAddress configAddress			   = 0x01u;
+	const Register		configDefaultValue		   = 0x0220u;
+	const Register		configExpectedWrittenValue = 0x0220u;
+
+	EXPECT_CALL(mockedI2C, read(Eq(this->deviceAddress), Eq(configAddress))).WillOnce(Return(configDefaultValue));
+	EXPECT_CALL(mockedI2C, write).Times(0);
+
+	const auto configResult = this->tmp116.setConfig(
+		{}, //
+		Config::ConversionCycleTime::CONV_1000MS,
+		Config::Averages::AVG_8,
+		{},
+		{},
+		{}
+	);
+
+	EXPECT_EQ(configResult.value(), configExpectedWrittenValue);
+}
+
+TEST_F(TMP116_Test, setConfigReturnsNulloptWhenI2CFails) {
+	this->disableI2C();
+	EXPECT_EQ(this->tmp116.setConfig(Config{}), std::nullopt);
+}
+
 TEST_F(TMP116_Test, setHighLimitNormallyReturnsRegisterValue) {
 	const MemoryAddress highLimitAddress			  = 0x02u;
 	float				setHighLimitValue			  = -10.0f;

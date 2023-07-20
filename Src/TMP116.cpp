@@ -79,6 +79,58 @@ std::optional<Register> TMP116::setConfig(Config config) {
 	return this->i2c->write(this->deviceAddress, TMP116_CFGR_REG_ADDR, registerValue);
 }
 
+std::optional<Register> TMP116::setConfig(
+	std::optional<Config::TemperatureConversionMode> temperatureConversionMode,
+	std::optional<Config::ConversionCycleTime>		 conversionCycleTime,
+	std::optional<Config::Averages>					 averages,
+	std::optional<Config::ThermalAlertModeSelect>	 thermalAlertMode,
+	std::optional<Config::AlertPolarity>			 alertPolarity,
+	std::optional<Config::DataReadyAlertPinSelect>	 dataReadyAlertSelection
+) {
+	// Check for at least one parameter to be set.
+	if (!temperatureConversionMode.has_value() && //
+		!conversionCycleTime.has_value() &&		  //
+		!averages.has_value() &&				  //
+		!thermalAlertMode.has_value() &&		  //
+		!alertPolarity.has_value() &&			  //
+		!dataReadyAlertSelection.has_value())
+		return std::nullopt;
+
+	// If all parameters are set, immediately write to the TMP116.
+	if (temperatureConversionMode.has_value() && //
+		conversionCycleTime.has_value() &&		 //
+		averages.has_value() &&					 //
+		thermalAlertMode.has_value() &&			 //
+		alertPolarity.has_value() &&			 //
+		dataReadyAlertSelection.has_value()		 //
+	) {
+		Config config{
+			temperatureConversionMode.value(),
+			conversionCycleTime.value(),
+			averages.value(),
+			thermalAlertMode.value(),
+			alertPolarity.value(),
+			dataReadyAlertSelection.value()};
+		return this->setConfig(config);
+	} else {
+		auto transmission = this->getConfig();
+
+		if (!transmission) return std::nullopt;
+
+		Config config = transmission.value();
+
+		if (temperatureConversionMode.has_value()) config.temperatureConversionMode = temperatureConversionMode.value();
+		if (conversionCycleTime.has_value()) config.conversionCycleTime = conversionCycleTime.value();
+		if (averages.has_value()) config.averages = averages.value();
+		if (thermalAlertMode.has_value()) config.thermalAlertMode = thermalAlertMode.value();
+		if (alertPolarity.has_value()) config.alertPolarity = alertPolarity.value();
+		if (dataReadyAlertSelection.has_value()) config.dataReadyAlertSelection = dataReadyAlertSelection.value();
+
+		if (config == Register(Config{transmission.value()})) return config; // Short circuit if no change.
+		else return this->setConfig(config);
+	}
+}
+
 std::optional<Register> TMP116::setHighLimit(float temperature) const {
 	Register registerValue = convertTemperatureRegister(temperature);
 	return this->i2c->write(this->deviceAddress, TMP116_HIGH_LIM_REG_ADDR, registerValue);
@@ -105,6 +157,21 @@ TMP116::Config::Config(Register configRegister)
 	this->alertPolarity			  = static_cast<AlertPolarity>(configRegister & 0x0008u);
 	this->dataReadyAlertSelection = static_cast<DataReadyAlertPinSelect>(configRegister & 0x0004u);
 }
+
+TMP116::Config::Config(
+	TemperatureConversionMode temperatureConversionMode,
+	ConversionCycleTime		  conversionCycleTime,
+	Averages				  averages,
+	ThermalAlertModeSelect	  thermalAlertMode,
+	AlertPolarity			  alertPolarity,
+	DataReadyAlertPinSelect	  dataReadyAlertSelection
+)
+	: temperatureConversionMode(temperatureConversionMode), //
+	  conversionCycleTime(conversionCycleTime),				//
+	  averages(averages),									//
+	  thermalAlertMode(thermalAlertMode),					//
+	  alertPolarity(alertPolarity),							//
+	  dataReadyAlertSelection(dataReadyAlertSelection) {}
 
 TMP116::Config::operator Register() const {
 	// Flags are Read Only and will always be set to 0, regardless of the constructor parameter.

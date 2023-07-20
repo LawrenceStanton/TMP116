@@ -145,6 +145,15 @@ public:
 		 */
 		explicit constexpr Config(void) = default;
 
+		Config(
+			TemperatureConversionMode temperatureConversionMode,
+			ConversionCycleTime		  conversionCycleTime,
+			Averages				  averages,
+			ThermalAlertModeSelect	  thermalAlertMode,
+			AlertPolarity			  alertPolarity,
+			DataReadyAlertPinSelect	  dataReadyAlertSelection
+		);
+
 		/**
 		 * @brief Convert a Config object to a TMP116 Config Register value.
 		 *
@@ -177,6 +186,15 @@ public:
 	 * @return std::optional<Register> The register value written to the TMP116 config register if successful.
 	 */
 	std::optional<Register> setConfig(Config config);
+
+	std::optional<Register> setConfig(
+		std::optional<Config::TemperatureConversionMode> temperatureConversionMode = std::nullopt,
+		std::optional<Config::ConversionCycleTime>		 conversionCycleTime	   = std::nullopt,
+		std::optional<Config::Averages>					 averages				   = std::nullopt,
+		std::optional<Config::ThermalAlertModeSelect>	 thermalAlertMode		   = std::nullopt,
+		std::optional<Config::AlertPolarity>			 alertPolarity			   = std::nullopt,
+		std::optional<Config::DataReadyAlertPinSelect>	 dataReadyAlertSelection   = std::nullopt
+	);
 
 	/**
 	 * @brief Set the High Limit threshold for the TMP116.
