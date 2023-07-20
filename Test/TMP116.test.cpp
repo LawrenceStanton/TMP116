@@ -23,6 +23,7 @@ using MemoryAddress = TMP116::I2C::MemoryAddress;
 using Register		= TMP116::I2C::Register;
 
 // Tests of Static Functions
+
 TEST(TMP116_TestStatic, convertTemperatureRegisterReturnsCorrectValuesRegisterToFloat) {
 	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0x0000u)), 0.0f);
 	EXPECT_FLOAT_EQ(convertTemperatureRegister(static_cast<Register>(0x0001u)), 0.0078125f);
@@ -43,6 +44,8 @@ TEST(TMP116_TestStatic, convertTemperatureRegisterReturnsCurrentValuesFloatToReg
 	EXPECT_EQ(convertTemperatureRegister(255.9921875f), static_cast<Register>(0x7FFFu));
 	EXPECT_EQ(convertTemperatureRegister(255.984375f), static_cast<Register>(0x7FFEu));
 }
+
+// Tests of Member Functions
 
 class MockedI2C : public TMP116::I2C {
 public:

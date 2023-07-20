@@ -68,3 +68,38 @@ std::optional<Register> TMP116::setLowLimit(float temperature) const {
 	Register registerValue = convertTemperatureRegister(temperature);
 	return this->i2c->write(this->deviceAddress, TMP116_LOW_LIM_REG_ADDR, registerValue);
 }
+
+TMP116::Config::Config(Register configRegister) {
+	// Special case for Temperature Conversion Mode: Map 0b10 to 0b00 (both accepted by TMP116 but not by enum).
+	if ((configRegister & 0x0C00u) == 0x0800u) { configRegister &= 0xF3FFu; }
+
+	this->highAlertFlag	 = static_cast<bool>(configRegister & 0x8000u);
+	this->lowAlertFlag	 = static_cast<bool>(configRegister & 0x4000u);
+	this->dataReadyFlag	 = static_cast<bool>(configRegister & 0x2000u);
+	this->eepromBusyFlag = static_cast<bool>(configRegister & 0x1000u);
+
+	this->temperatureConversionMode = static_cast<TemperatureConversionMode>(configRegister & 0x0C00u);
+	this->conversionCycleTime		= static_cast<ConversionCycleTime>(configRegister & 0x0380u);
+	this->averages					= static_cast<Averages>(configRegister & 0x0060u);
+
+	this->thermalAlertMode		  = static_cast<ThermalAlertModeSelect>(configRegister & 0x0010u);
+	this->alertPolarity			  = static_cast<AlertPolarity>(configRegister & 0x0008u);
+	this->dataReadyAlertSelection = static_cast<DataReadyAlertPinSelect>(configRegister & 0x0004u);
+}
+
+TMP116::Config::operator Register() const {
+	Register registerValue = static_cast<Register>(this->highAlertFlag) << 15 |	 // bool must be shifted
+							 static_cast<Register>(this->lowAlertFlag) << 14 |	 // bool must be shifted
+							 static_cast<Register>(this->dataReadyFlag) << 13 |	 // bool must be shifted
+							 static_cast<Register>(this->eepromBusyFlag) << 12 | // bool must be shifted
+
+							 static_cast<Register>(this->temperatureConversionMode) | // typeof<enum class> == Register
+							 static_cast<Register>(this->conversionCycleTime) |		  // typeof<enum class> == Register
+							 static_cast<Register>(this->averages) |				  // typeof<enum class> == Register
+
+							 static_cast<Register>(this->thermalAlertMode) |	   // typeof<enum class> == Register
+							 static_cast<Register>(this->alertPolarity) |		   // typeof<enum class> == Register
+							 static_cast<Register>(this->dataReadyAlertSelection); // typeof<enum class> == Register
+
+	return registerValue;
+}

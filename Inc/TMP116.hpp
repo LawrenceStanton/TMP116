@@ -58,13 +58,6 @@ public:
 	using MemoryAddress = I2C::MemoryAddress;
 	using Register		= I2C::Register;
 
-	enum class Averages {
-		AVG_1  = 0x00,
-		AVG_8  = 0x01,
-		AVG_32 = 0x02,
-		AVG_64 = 0x03,
-	};
-
 	/**
 	 * @brief Construct a new TMP116 object
 	 *
@@ -88,6 +81,75 @@ public:
 	 */
 	std::optional<Register> getDeviceId();
 
+	struct Config {
+		enum class Averages : Register {
+			AVG_1  = 0x0000u,
+			AVG_8  = 0x0020u,
+			AVG_32 = 0x0040u,
+			AVG_64 = 0x0060u,
+		};
+
+		enum class TemperatureConversionMode : Register {
+			CONTINUOUS = 0x0000u,
+			SHUTDOWN   = 0x0400u,
+			ONESHOT	   = 0x0C00u,
+		};
+
+		enum class ConversionCycleTime : Register {
+			CONV_15_5MS	 = 0b000u << 7, // ! Period increased when Averages > 1
+			CONV_125MS	 = 0b001u << 7, // ! Period increased when Averages > 8
+			CONV_250MS	 = 0b010u << 7, // ! Period increased when Averages > 8
+			CONV_500MS	 = 0b011u << 7, // ! Period increased when Averages > 32
+			CONV_1000MS	 = 0b100u << 7,
+			CONV_4000MS	 = 0b101u << 7,
+			CONV_8000MS	 = 0b110u << 7,
+			CONV_16000MS = 0b111u << 7,
+		};
+
+		enum class ThermalAlertModeSelect : Register {
+			THERM = 0x0010u, // Temperature Mode
+			ALERT = 0x0000u, // Alert Mode
+		};
+
+		enum class AlertPolarity : Register {
+			ACTIVE_HIGH = 0x0008u,
+			ACTIVE_LOW	= 0x0000u,
+		};
+
+		enum class DataReadyAlertPinSelect : Register {
+			DATA_READY = 0x0004u, // ALERT Pin reflects status of Data Ready Flag
+			ALERT	   = 0x0000u, // ALERT Pin reflects status of Alert Flags
+		};
+
+		bool					  highAlertFlag;
+		bool					  lowAlertFlag;
+		bool					  dataReadyFlag;
+		bool					  eepromBusyFlag;
+		TemperatureConversionMode temperatureConversionMode;
+		ConversionCycleTime		  conversionCycleTime;
+		Averages				  averages;
+		ThermalAlertModeSelect	  thermalAlertMode;
+		AlertPolarity			  alertPolarity;
+		DataReadyAlertPinSelect	  dataReadyAlertSelection;
+
+		/**
+		 * @brief Construct a new Config object from a TMP116 Config Register value.
+		 *
+		 * @param configRegister The TMP116 Config Register value.
+		 */
+		explicit Config(Register configRegister);
+
+		/**
+		 * @brief Convert a Config object to a TMP116 Config Register value.
+		 *
+		 * @return Register The equivalent TMP116 Config Register value.
+		 * @note The last 2 LSBs are Read Only and will always be set to 0, regardless of the constructor parameter.
+		 * @note The Temperature Conversion Mode (0b10) is mapped to (0b00) (both accepted by TMP116 but not by type).
+		 * 		 This results in non-reversible conversions with some register values when using this Config class.
+		 */
+		operator Register() const;
+	};
+
 	/**
 	 * @brief Set the High Limit threshold for the TMP116.
 	 *
@@ -104,10 +166,11 @@ public:
 	 */
 	std::optional<Register> setLowLimit(float temperature) const;
 
-	inline DeviceAddress getDeviceAddress() const { return deviceAddress; }
-	inline void			 setDeviceAddress(DeviceAddress deviceAddress) { this->deviceAddress = deviceAddress; }
-
 private:
 	I2C			 *i2c;
 	DeviceAddress deviceAddress;
+
+public:
+	inline DeviceAddress getDeviceAddress() const { return deviceAddress; }
+	inline void			 setDeviceAddress(DeviceAddress deviceAddress) { this->deviceAddress = deviceAddress; }
 };

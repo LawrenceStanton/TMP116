@@ -57,6 +57,7 @@ if(NOT CMAKE_CROSSCOMPILING)
 	
 	add_executable(${TEST_EXECUTABLE}
 		Test/TMP116.test.cpp
+		Test/TMP116_Config.test.cpp
 	)
 
 	target_compile_options(${TEST_EXECUTABLE} PRIVATE
