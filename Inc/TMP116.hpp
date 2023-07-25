@@ -29,14 +29,13 @@ public:
 
 		/**
 		 * @brief Device Address of the TMP116 on the I2C Bus.
-		 * @note These address values are right aligned and should be left shifted by 1 the LSB R/W bit should be added
-		 * in the I2C call.
+		 * @note These address values should be left shifted by 1 the LSB R/W bit should be added in the I2C call.
 		 */
-		enum class DeviceAddress {
-			ADD0_GND = 0x48,
-			ADD0_VCC = 0x49,
-			ADD0_SDA = 0x4A,
-			ADD0_SCL = 0x4B,
+		enum class DeviceAddress : uint8_t {
+			ADD0_GND = 0x48u,
+			ADD0_VCC = 0x49u,
+			ADD0_SDA = 0x4Au,
+			ADD0_SCL = 0x4Bu,
 		};
 
 		/**
