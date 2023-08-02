@@ -1,6 +1,6 @@
 # TMP116 Digital Temperature Sensor
 
-[![License](https://img.shields.io/github/license/LawrenceStanton/TMP116)](LICENSE.md)
+[![License](https://img.shields.io/github/license/LawrenceStanton/TMP116)](LICENCE.md)
 [![CTest](https://github.com/LawrenceStanton/TMP116/actions/workflows/ctest.yml/badge.svg)](https://github.com/LawrenceStanton/TMP116/actions/workflows/ctest.yml)
 [![CodeQL](https://github.com/LawrenceStanton/TMP116/actions/workflows/codeql.yml/badge.svg)](https://github.com/LawrenceStanton/TMP116/actions/workflows/codeql.yml)
 
