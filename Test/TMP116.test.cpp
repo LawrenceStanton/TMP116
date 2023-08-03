@@ -65,9 +65,9 @@ public:
 
 class TMP116_Test : public ::testing::Test {
 public:
-	MockedI2C			  mockedI2C;
+	MockedI2C			  mockedI2C{};
 	TMP116::DeviceAddress deviceAddress = TMP116::DeviceAddress::ADD0_GND;
-	TMP116				  tmp116{&mockedI2C, deviceAddress};
+	TMP116				  tmp116{mockedI2C, deviceAddress};
 
 	inline void disableI2C(void) {
 		ON_CALL(mockedI2C, read).WillByDefault(Return(std::nullopt));

@@ -57,13 +57,18 @@ public:
 	using MemoryAddress = I2C::MemoryAddress;
 	using Register		= I2C::Register;
 
+private:
+	I2C			 &i2c;
+	DeviceAddress deviceAddress;
+
+public:
 	/**
 	 * @brief Construct a new TMP116 object
 	 *
 	 * @param i2c I2C Interface. @see TMP116::I2C for details.
 	 * @param deviceAddress Device Address of the TMP116 on the I2C Bus to address.
 	 */
-	TMP116(I2C *i2c, I2C::DeviceAddress deviceAddress);
+	TMP116(I2C &i2c, I2C::DeviceAddress deviceAddress);
 
 	/**
 	 * @brief Get the Temperature from the TMP116.
@@ -218,10 +223,6 @@ public:
 	 * @return std::optional<Register> The register value written to the TMP116 low limit register if successful.
 	 */
 	std::optional<Register> setLowLimit(float temperature) const;
-
-private:
-	I2C			 *i2c;
-	DeviceAddress deviceAddress;
 
 public:
 	inline DeviceAddress getDeviceAddress() const { return deviceAddress; }
