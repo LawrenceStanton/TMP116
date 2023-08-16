@@ -14,9 +14,12 @@
 #include "../Src/TMP116.cpp"
 
 using ::testing::_;
+using ::testing::AnyNumber;
 using ::testing::Eq;
 using ::testing::Return;
 using ::testing::ReturnArg;
+
+using std::nullopt;
 
 using DeviceAddress = TMP116::I2C::DeviceAddress;
 using MemoryAddress = TMP116::I2C::MemoryAddress;
@@ -70,8 +73,8 @@ public:
 	TMP116				  tmp116{mockedI2C, deviceAddress};
 
 	inline void disableI2C(void) {
-		ON_CALL(mockedI2C, read).WillByDefault(Return(std::nullopt));
-		ON_CALL(mockedI2C, write).WillByDefault(Return(std::nullopt));
+		EXPECT_CALL(mockedI2C, read).Times(AnyNumber()).WillRepeatedly(Return(nullopt));
+		EXPECT_CALL(mockedI2C, write).Times(AnyNumber()).WillRepeatedly(Return(nullopt));
 	}
 };
 
@@ -103,7 +106,7 @@ TEST_F(TMP116_Test, getDeviceIdNormallyReturnsValue) {
 
 TEST_F(TMP116_Test, getDeviceIdReturnsNulloptWhenI2CReadFails) {
 	this->disableI2C();
-	EXPECT_EQ(this->tmp116.getDeviceId(), std::nullopt);
+	EXPECT_EQ(this->tmp116.getDeviceId(), nullopt);
 }
 
 TEST_F(TMP116_Test, getConfigRegisterNormallyReturnsValue) {
@@ -119,7 +122,7 @@ TEST_F(TMP116_Test, getConfigRegisterNormallyReturnsValue) {
 
 TEST_F(TMP116_Test, getConfigRegisterReturnsNulloptWhenI2CReadFails) {
 	this->disableI2C();
-	EXPECT_EQ(this->tmp116.getConfigRegister(), std::nullopt);
+	EXPECT_EQ(this->tmp116.getConfigRegister(), nullopt);
 }
 
 TEST_F(TMP116_Test, getConfigNormallyReturnsValue) {
@@ -136,7 +139,7 @@ TEST_F(TMP116_Test, getConfigNormallyReturnsValue) {
 
 TEST_F(TMP116_Test, getConfigReturnsNulloptWhenI2CReadFails) {
 	this->disableI2C();
-	EXPECT_EQ(this->tmp116.getConfig(), std::nullopt);
+	EXPECT_EQ(this->tmp116.getConfig(), nullopt);
 }
 
 TEST_F(TMP116_Test, dataReadyNormallyReturnsValue) {
@@ -147,7 +150,7 @@ TEST_F(TMP116_Test, dataReadyNormallyReturnsValue) {
 
 TEST_F(TMP116_Test, dataReadyReturnsFalseWhenI2CReadFails) {
 	this->disableI2C();
-	EXPECT_EQ(this->tmp116.dataReady(), std::nullopt);
+	EXPECT_EQ(this->tmp116.dataReady(), nullopt);
 }
 
 TEST_F(TMP116_Test, setConfigNormallyReturnsRegisterValue) {
@@ -165,7 +168,7 @@ TEST_F(TMP116_Test, setConfigNormallyReturnsRegisterValue) {
 
 TEST_F(TMP116_Test, setConfigReturnsNulloptWhenI2CWriteFails) {
 	this->disableI2C();
-	EXPECT_EQ(this->tmp116.setConfig(Config{}), std::nullopt);
+	EXPECT_EQ(this->tmp116.setConfig(Config{}), nullopt);
 }
 
 TEST_F(TMP116_Test, setConfigNormallyDirectlyWritesWhenGivenCompleteNewConfiguration) {
@@ -189,7 +192,7 @@ TEST_F(TMP116_Test, setConfigNormallyDirectlyWritesWhenGivenCompleteNewConfigura
 }
 
 TEST_F(TMP116_Test, setConfigReturnsNulloptIfGivenNoParameters) {
-	EXPECT_EQ(this->tmp116.setConfig(), std::nullopt);
+	EXPECT_EQ(this->tmp116.setConfig(), nullopt);
 }
 
 TEST_F(TMP116_Test, setConfigSetsOnlyGivenParametersAndOtherwiseMaintainsState) {
@@ -234,7 +237,7 @@ TEST_F(TMP116_Test, setConfigWillNotWriteIfConfigIsUnchangedAndWillReturnCurrent
 
 TEST_F(TMP116_Test, setConfigReturnsNulloptWhenI2CFails) {
 	this->disableI2C();
-	EXPECT_EQ(this->tmp116.setConfig(Config{}), std::nullopt);
+	EXPECT_EQ(this->tmp116.setConfig(Config{}), nullopt);
 }
 
 TEST_F(TMP116_Test, setHighLimitNormallyReturnsRegisterValue) {
@@ -250,7 +253,7 @@ TEST_F(TMP116_Test, setHighLimitNormallyReturnsRegisterValue) {
 
 TEST_F(TMP116_Test, setHighLimitReturnsNulloptWhenI2CWriteFails) {
 	this->disableI2C();
-	EXPECT_EQ(this->tmp116.setHighLimit(0.0f), std::nullopt);
+	EXPECT_EQ(this->tmp116.setHighLimit(0.0f), nullopt);
 }
 
 TEST_F(TMP116_Test, setLowLimitNormallyReturnsRegisterValue) {
@@ -266,5 +269,5 @@ TEST_F(TMP116_Test, setLowLimitNormallyReturnsRegisterValue) {
 
 TEST_F(TMP116_Test, setLowLimitReturnsNulloptWhenI2CWriteFails) {
 	this->disableI2C();
-	EXPECT_EQ(this->tmp116.setLowLimit(0.0f), std::nullopt);
+	EXPECT_EQ(this->tmp116.setLowLimit(0.0f), nullopt);
 }
