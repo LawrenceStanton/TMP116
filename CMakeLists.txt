@@ -20,7 +20,7 @@ target_include_directories(${LIBRARY} PUBLIC
 add_library(${LIBRARY}::${LIBRARY} ALIAS ${LIBRARY})
 
 if(NOT CMAKE_CROSSCOMPILING)
-	OPTION(TMP116_CODE_COVERAGE "Enable gcovr code coverage for TMP116" OFF)
+	option(TMP116_CODE_COVERAGE "Enable gcovr code coverage for TMP116" OFF)
 
 	include(FetchContent)
 	FetchContent_Declare(
@@ -30,23 +30,8 @@ if(NOT CMAKE_CROSSCOMPILING)
 	)
 	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 	FetchContent_MakeAvailable(googletest)
-
 	enable_testing()
 
-
-	target_link_libraries(${LIBRARY} PRIVATE
-		GTest::gtest
-	)
-
-	target_compile_options(${LIBRARY} PRIVATE
-		$<$<BOOL:${TMP116_CODE_COVERAGE}>:--coverage>
-	)
-
-	target_link_options(${LIBRARY} PRIVATE
-		$<$<BOOL:${TMP116_CODE_COVERAGE}>:--coverage>
-	)
-
-	# GTest Test Executable
 	set(TEST_EXECUTABLE ${LIBRARY}_Test)
 
 	add_executable(${TEST_EXECUTABLE}
