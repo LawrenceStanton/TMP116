@@ -47,8 +47,7 @@ public:
 		 */
 		virtual std::optional<Register> read(DeviceAddress deviceAddress, MemoryAddress memoryAddress) = 0;
 
-		virtual std::optional<Register>
-		write(DeviceAddress deviceAddress, MemoryAddress memoryAddress, Register data) = 0;
+		virtual std::optional<Register> write(DeviceAddress deviceAddress, MemoryAddress memoryAddress, Register data) = 0;
 
 		virtual ~I2C() = default;
 	};

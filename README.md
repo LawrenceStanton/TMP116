@@ -60,8 +60,8 @@ public:
     MyI2C(MyI2CParams params) : params(params) {}
     virtual ~MyI2C() {}
 
-    virtual std::optional<HDC1080::I2C::Register> read(HDC1080::I2C::MemoryAddress address) override;
-    virtual std::optional<HDC1080::I2C::Register> write(HDC1080::I2C::MemoryAddress address, HDC1080::I2C::Register) override;
+    virtual std::optional<TMP116::I2C::Register> read(TMP116::I2C::MemoryAddress address) override;
+    virtual std::optional<TMP116::I2C::Register> write(TMP116::I2C::MemoryAddress address, TMP116::I2C::Register) override;
 }
 
 // Definitions made in a separate source file.
