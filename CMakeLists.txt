@@ -60,9 +60,13 @@ if(NOT CMAKE_CROSSCOMPILING)
 		set(GCOVR_COMMAND gcovr --root ${CMAKE_SOURCE_DIR} --filter '.*/TMP116/.*' --exclude '.*\.test\..*' ${CMAKE_CURRENT_BINARY_DIR})
 		set(SILENT_RUN_COMMAND ./${TEST_EXECUTABLE} > /dev/null)
 
+		add_custom_command(TARGET ${TEST_EXECUTABLE} PRE_BUILD
+			COMMENT "Cleaning previous gcov data files for ADS124S08 Tests..."
+			COMMAND find ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${TEST_EXECUTABLE}.dir -type f -name "*.gcda" -delete
+		)
+
 		add_custom_command(TARGET ${TEST_EXECUTABLE} POST_BUILD
 			COMMENT "Running gcovr Code Coverage for TMP116 Tests..."
-			COMMAND find ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${TEST_EXECUTABLE}.dir -type f -name "*.gcda" -delete
 			COMMAND ${SILENT_RUN_COMMAND} && ${GCOVR_COMMAND} || echo "Code coverage failed. All tests must pass for code coverage to run."
 		)
 	endif()
